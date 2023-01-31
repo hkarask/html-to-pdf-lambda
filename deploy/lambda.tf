@@ -1,8 +1,8 @@
 data "archive_file" "lambda_hello_world_zip" {
   type = "zip"
 
-  source_dir  = "${path.module}/../src"
-  output_path = "${path.module}/dist.zip"
+  source_dir  = "${path.module}/../dist/lambda"
+  output_path = "${path.module}/../dist/lambda.zip"
 }
 
 resource "aws_lambda_function" "hello_world" {
@@ -15,6 +15,7 @@ resource "aws_lambda_function" "hello_world" {
   filename         = data.archive_file.lambda_hello_world_zip.output_path
   source_code_hash = data.archive_file.lambda_hello_world_zip.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
+
 }
 
 resource "aws_cloudwatch_log_group" "hello_world" {
@@ -38,9 +39,48 @@ resource "aws_iam_role" "lambda_exec" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_policy" {
+resource "aws_iam_policy" "wkhtml_lambda_policy" {
+  name        = "wkhtml_lambda_policy"
+  path        = "/"
+  description = "IAM policy for Wkhtml"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+        "Effect": "Allow",
+        "Action": [
+            "s3:ListAllMyBuckets",
+            "s3:GetBucketLocation"
+        ],
+        "Resource": "*"
+    },
+    {
+        "Effect": "Allow",
+        "Action": "s3:*",
+        "Resource": [
+            "arn:aws:s3:::html-to-pdf-demo",
+            "arn:aws:s3:::html-to-pdf-demo/*"
+        ]
+    },
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*",
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
   role       = aws_iam_role.lambda_exec.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  policy_arn = aws_iam_policy.wkhtml_lambda_policy.arn
 }
 
 resource "aws_lambda_function_url" "hello_world_url" {

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2018",
+    "module": "es2022",
+    "rootDir": "src",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "outDir": "dist/lambda",
+    "removeComments": true,
+    "noEmitOnError": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": true,
+  },
+  "include": ["src/**/*.ts", "local.ts"]
+}

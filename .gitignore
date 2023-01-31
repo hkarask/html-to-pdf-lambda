@@ -143,4 +143,4 @@ hello-world.zip
 response.json
 
 # app
-deploy/dist.zip
+/dist
