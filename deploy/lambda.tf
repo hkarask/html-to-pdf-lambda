@@ -1,30 +1,30 @@
-data "archive_file" "lambda_hello_world_zip" {
+data "archive_file" "function_zip" {
   type = "zip"
 
   source_dir  = "${path.module}/../dist/lambda"
   output_path = "${path.module}/../dist/lambda.zip"
 }
 
-resource "aws_lambda_function" "hello_world" {
-  function_name    = "HelloWorld"
+resource "aws_lambda_function" "function" {
+  function_name    = "${var.function_name}"
   runtime          = "nodejs18.x"
   handler          = "index.handler"
   timeout          = 15
   memory_size      = 128
-  layers           = ["${aws_lambda_layer_version.wkhtml_layer.arn}"]
-  filename         = data.archive_file.lambda_hello_world_zip.output_path
-  source_code_hash = data.archive_file.lambda_hello_world_zip.output_base64sha256
-  role             = aws_iam_role.lambda_exec.arn
+  layers           = ["${aws_lambda_layer_version.function_layer.arn}"]
+  filename         = data.archive_file.function_zip.output_path
+  source_code_hash = data.archive_file.function_zip.output_base64sha256
+  role             = aws_iam_role.function_role.arn
 
 }
 
-resource "aws_cloudwatch_log_group" "hello_world" {
-  name              = "/aws/lambda/${aws_lambda_function.hello_world.function_name}"
+resource "aws_cloudwatch_log_group" "function" {
+  name              = "/aws/lambda/${aws_lambda_function.function.function_name}"
   retention_in_days = 3
 }
 
-resource "aws_iam_role" "lambda_exec" {
-  name = "serverless_lambda"
+resource "aws_iam_role" "function_role" {
+  name = "${var.function_name}_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -39,10 +39,10 @@ resource "aws_iam_role" "lambda_exec" {
   })
 }
 
-resource "aws_iam_policy" "wkhtml_lambda_policy" {
-  name        = "wkhtml_lambda_policy"
+resource "aws_iam_policy" "function_policy" {
+  name        = "${var.function_name}_policy"
   path        = "/"
-  description = "IAM policy for Wkhtml"
+  description = "IAM policy for ${var.function_name}"
 
   policy = <<EOF
 {
@@ -60,8 +60,8 @@ resource "aws_iam_policy" "wkhtml_lambda_policy" {
         "Effect": "Allow",
         "Action": "s3:*",
         "Resource": [
-            "arn:aws:s3:::html-to-pdf-demo",
-            "arn:aws:s3:::html-to-pdf-demo/*"
+            "arn:aws:s3:::${var.function_name}-input",
+            "arn:aws:s3:::${var.function_name}-input/*"
         ]
     },
     {
@@ -78,17 +78,22 @@ resource "aws_iam_policy" "wkhtml_lambda_policy" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.lambda_exec.name
-  policy_arn = aws_iam_policy.wkhtml_lambda_policy.arn
+resource "aws_iam_role_policy_attachment" "function_logs" {
+  role       = aws_iam_role.function_role.name
+  policy_arn = aws_iam_policy.function_policy.arn
 }
 
-resource "aws_lambda_function_url" "hello_world_url" {
-  function_name      = aws_lambda_function.hello_world.function_name
+resource "aws_lambda_function_url" "function_url" {
+  function_name      = aws_lambda_function.function.function_name
   authorization_type = "NONE"
 }
 
 output "function_url" {
   description = "URL of the Lambda function."
-  value       = aws_lambda_function_url.hello_world_url.function_url
+  value       = aws_lambda_function_url.function_url.function_url
+}
+
+output "lambda_log_group" {
+  description = "Name of the Lambda's log group"
+  value = aws_cloudwatch_log_group.function.name
 }

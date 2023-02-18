@@ -1,46 +1,64 @@
-
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { APIGatewayEvent } from "aws-lambda";
 import { Stream } from "node:stream";
 import { WkOptions, ValidateGeneratePdfRequest } from "./types";
 import wkhtmltopdf from "./wkhtmltopdf";
 
-module.exports.handler = async (event: WkOptions) => {
-  console.debug('Received event', JSON.stringify(event));
+module.exports.handler = async (event: APIGatewayEvent) => {
+  console.log("Received event", JSON.stringify(event));
+  console.info("raw body is", event.body);
 
-  event.marginTop = 0;
-  event.marginRight = 0;
-  event.marginBottom = 0;
-  event.marginLeft = 0;
-  event.orientation = 'Portrait';
+  if (event.body) {
+    const body = JSON.parse(event.body);
+    console.info('🔵 body.foo', body.foo);
+  }
 
-  ValidateGeneratePdfRequest(event);
-
+  //TODO: use url instead
   const s3Client = new S3Client({});
-
   let getObjectResponse;
   try {
-    getObjectResponse = await s3Client.send(new GetObjectCommand({ Bucket: 'html-to-pdf-demo', Key: 'sample.html'}));
+    getObjectResponse = await s3Client.send(
+      new GetObjectCommand({ Bucket: "html-to-pdf-input", Key: "sample.html" })
+    );
   } catch (error) {
     throw new Error(`S3 getObject failed ${error}`);
   }
 
-  const pdfData = await wkhtmltopdf(getObjectResponse.Body as Stream, event);
+  const wkOptions: WkOptions = {
+    marginTop: 0,
+    marginRight: 0,
+    marginBottom: 0,
+    marginLeft: 0,
+    orientation: "Portrait",
+    input: getObjectResponse.Body as Stream,
+  };
 
-  await s3.upload({
-    Bucket: 'html-to-pdf-demo',
-    Key: 'sample.pdf',
-    Body: pdfData
-  }).promise()
+  ValidateGeneratePdfRequest(wkOptions);
 
-  const responseMessage = "Hello World";
+  const pdfData = await wkhtmltopdf(wkOptions);
+
+  const s3Bucket = "html-to-pdf-input";
+  const s3Key = "sample.pdf";
+
+  await s3Client.send(
+    new PutObjectCommand({
+      Bucket: s3Bucket,
+      Key: s3Key,
+      Body: pdfData,
+    })
+  );
 
   return {
-    statusCode: 201,
+    statusCode: 200,
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      message: responseMessage,
+      message: `File saved to ${s3Bucket}/${s3Key}`,
     }),
   };
 };

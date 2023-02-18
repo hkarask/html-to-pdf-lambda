@@ -1,10 +1,12 @@
 import { Stream } from "node:stream";
 
+export type Orientation = "Landscape" | "Portrait";
+
 export interface WkOptions {
   // URI or Stream providing HTML input
   input: string | Stream;
   // Defaults to Portrait
-  orientation?: "Landscape" | "Portrait";
+  orientation?: Orientation;
   marginTop?: number;
   marginRight?: number;
   marginBottom?: number;
@@ -16,7 +18,7 @@ export const ValidateGeneratePdfRequest = (options: WkOptions) => {
   const addError = (error: string) => validationErrors.push(error);
 
   const orientations = ["Landscape", "Portrait"];
-  if (!orientations.includes(options.orientation))
+  if (!options.orientation || !orientations.includes(options.orientation))
     addError(`${options.orientation} not in ${orientations.join()}`);
 
   const isNotValidSize = (n: unknown) => typeof n !== "number" || n < 0;

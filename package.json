@@ -1,7 +1,5 @@
 {
-  "type": "module",
   "scripts": {
-    "local": "ts-node --esm --experimental-specifier-resolution=node local.ts",
     "build": "eslint src && tsc"
   },
   "devDependencies": {

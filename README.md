@@ -1,14 +1,19 @@
 # HTML to PDF with AWS - Lambda ❤ Wkthmltopdf
 AWS Lambda HTML to PDF converter
 
-# Provision
+# Deploying Lambda
 ```bash
+npm run build
 terraform init
 terraform apply
 ```
 
-# Testing PDF generation locally
-```bash
-npn run local
+# Tail Lambda logs
+```sh
+aws logs tail "$(terraform output -raw lambda_log_group)" --follow
 ```
-Will generate a `test.pdf` from fetching `https://www.google.com
+
+# Invoke Lambda
+```sh
+curl -H 'Content-Type: application/json' -d '{"foo": "bar"}' -X POST $(terraform output -raw function_url)
+```

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2018",
-    "module": "es2022",
+    "module": "commonjs",
     "rootDir": "src",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "noImplicitAny": true,
+    "noImplicitAny": true
   },
-  "include": ["src/**/*.ts", "local.ts"]
+  "include": ["src/**/*.ts"]
 }
