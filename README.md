@@ -1,4 +1,4 @@
-# HTML to PDF with AWS - Lambda ❤ Wkthmltopdf
+# HTML to PDF with AWS Lambda, Wkhtmltopdf, Terraform
 AWS Lambda HTML to PDF converter
 
 # Deploying Lambda
