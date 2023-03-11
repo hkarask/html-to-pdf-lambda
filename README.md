@@ -3,11 +3,11 @@ AWS Lambda HTML to PDF converter
 
 Uses a Terraform script to
 - provision a Lambda layer which contains the **Wkhtmltopdf** binaries and custom fonts
-- create a Nodes.js Lambda with a function URL
-- S3 buckets containing a sample input HTML and output for the PDF
+- create a **Nodes.js Lambda** with a function URL
+- S3 bucket containing a sample input HTML
 
 ## Deploying Lambda
-```bash
+```sh
 npm run build
 terraform init
 terraform apply
@@ -18,6 +18,7 @@ After deploying you can invoke the Lambda:
 ```sh
 curl -H 'Content-Type: application/json' -d '{"uri": "https://www.google.com", "fileName": "sample.pdf"}' -X POST $(terraform output -raw function_url) -i
 ```
+Where `uri` is either an URL or S3 file key.
 
 Available parameters are:
 
@@ -32,6 +33,10 @@ Available parameters are:
   "marginLeft": "number" // Optional: left margin
 }
 ```
+
+This then triggers the **Lambda**, passes the options to **Wkhtmltopdf** and saves the converted PDF to a configured S3 bucket.
+
+---
 
 Tailing the Lambda logs
 ```sh
