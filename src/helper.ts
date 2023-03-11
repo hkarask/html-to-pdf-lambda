@@ -12,25 +12,9 @@ export const createResponse = (statusCode: number, message: string) => ({
   }),
 });
 
-export const getRequestValidationErrors = (req: Request): string[] => {
-  const orientations = ["Landscape", "Portrait"];
-  const rules = new Map<boolean, string>()
-    .set(
-      !req.uri || !req.uri.match(/s3:\/\/|https?:\/\//),
-      "Bad input uri, was expecting http(s)://www.example.com or s3://your-bucket/your-file"
-    )
-    .set(!req.fileName?.length, "fileName not set")
-    .set(
-      !req.orientation || !orientations.includes(req.orientation),
-      `${req.orientation} not in ${orientations.join()}`
-    )
-    .set(isNotValidSize(req.marginTop), "'marginTop' not valid")
-    .set(isNotValidSize(req.marginRight), "'marginRight' not valid")
-    .set(isNotValidSize(req.marginBottom), "'marginBottom' not valid")
-    .set(isNotValidSize(req.marginLeft), "'marginLeft' not valid");
-
-  return [...rules].filter(([fail, _]) => fail).map(([_, msg]) => msg);
-};
+export const getRequestValidationErrors = (req: Request): string[] => [
+  ...validationErrors(req),
+];
 
 export const loadFileFromS3 = async (
   s3Client: S3Client,
@@ -49,5 +33,21 @@ export const loadFileFromS3 = async (
     throw new Error(`S3 getObject failed ${error}`);
   }
 };
+
+function* validationErrors(req: Request) {
+  if (!req.uri || !req.uri.match(/s3:\/\/|https?:\/\//))
+    yield "Bad input uri, was expecting http(s)://www.example.com or s3://your-bucket/your-file";
+
+  if (!req.fileName?.length) yield "fileName not set";
+
+  const orientations = ["Landscape", "Portrait"];
+  if (!req.orientation || !orientations.includes(req.orientation))
+    yield `${req.orientation} not in ${orientations.join()}`;
+
+  if (isNotValidSize(req.marginTop)) yield "'marginTop' not valid";
+  if (isNotValidSize(req.marginRight)) yield "'marginRight' not valid";
+  if (isNotValidSize(req.marginBottom)) yield "'marginBottom' not valid";
+  if (isNotValidSize(req.marginLeft)) yield "'marginLeft' not valid";
+}
 
 const isNotValidSize = (n: unknown) => typeof n !== "number" || n < 0;
