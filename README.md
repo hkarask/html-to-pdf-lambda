@@ -9,14 +9,15 @@ Uses a Terraform script to
 ## Deploying Lambda
 ```sh
 npm run build
-terraform init
 terraform apply
 ```
 
 After deploying you can invoke the Lambda:
 
 ```sh
-curl -H 'Content-Type: application/json' -d '{"uri": "https://www.google.com", "fileName": "sample.pdf"}' -X POST $(terraform output -raw function_url) -i
+curl -H 'Content-Type: application/json' \
+  -d '{"uri": "https://www.google.com", "fileName": "sample.pdf"}' \
+  -X POST $(terraform output -raw function_url) -i
 ```
 Where `uri` is either an URL or S3 file key.
 
@@ -36,7 +37,24 @@ Available parameters are:
 
 This then triggers the **Lambda**, passes the options to **Wkhtmltopdf** and saves the converted PDF to a configured S3 bucket.
 
----
+```sh
+HTTP/1.1 200 OK
+Date: Sat, 11 Mar 2023 04:51:55 GMT
+Content-Type: application/json
+
+{"message":"File saved to lambda-html-to-pdf-files/sample.pdf"}
+```
+
+or you might get a validation error if you missed something:
+```sh
+HTTP/1.1 400 Bad Request
+Date: Sat, 11 Mar 2023 04:53:33 GMT
+Content-Type: application/json
+
+{"message":"fileName not set"}
+```
+
+## Utilities
 
 Tailing the Lambda logs
 ```sh
