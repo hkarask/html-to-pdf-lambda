@@ -38,11 +38,11 @@ function* validationErrors(req: Request) {
   if (!req.uri || !req.uri.match(/s3:\/\/|https?:\/\//))
     yield "Bad input uri, was expecting http(s)://www.example.com or s3://your-bucket/your-file";
 
-  if (!req.fileName?.length) yield "fileName not set";
+  if (!req.fileName?.length) yield "'fileName' not set";
 
   const orientations = ["Landscape", "Portrait"];
   if (!req.orientation || !orientations.includes(req.orientation))
-    yield `${req.orientation} not in ${orientations.join()}`;
+    yield `'orientation' not in ${orientations.join()}`;
 
   if (isNotValidSize(req.marginTop)) yield "'marginTop' not valid";
   if (isNotValidSize(req.marginRight)) yield "'marginRight' not valid";
