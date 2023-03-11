@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "eslint src && tsc",
+    "build": "eslint src && jest && tsc",
     "test": "jest"
   },
   "devDependencies": {
