@@ -1,18 +1,20 @@
 # HTML to PDF with AWS Lambda, Wkhtmltopdf, Terraform
-AWS Lambda HTML to PDF converter
+HTML to PDF converter hosted in AWS Lambda, using:
+- **Terraform** to provision the Lambda
+- **Typescript** to invoke the Wkhtmltopdf
 
-Uses a Terraform script to
-- provision a Lambda layer which contains the **Wkhtmltopdf** binaries and custom fonts
-- create a **Nodes.js Lambda** with a function URL
-- S3 bucket containing a sample input HTML
 
-## Deploying Lambda
+
+## Deploy
+Modify the Lambda name and S3 bucket inside the `variables.tf`
 ```sh
 npm run build
 terraform apply
 ```
 
-After deploying you can invoke the Lambda:
+## How to use
+
+After deploying you can invoke the Lambda using the published function URL:
 
 ```sh
 curl -H 'Content-Type: application/json' \
