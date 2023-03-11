@@ -39,7 +39,7 @@ Available parameters are:
 
 This then triggers the **Lambda**, passes the options to **Wkhtmltopdf** and saves the converted PDF to a configured S3 bucket.
 
-```sh
+```http
 HTTP/1.1 200 OK
 Date: Sat, 11 Mar 2023 04:51:55 GMT
 Content-Type: application/json
@@ -48,7 +48,7 @@ Content-Type: application/json
 ```
 
 or you might get a validation error if you missed something:
-```sh
+```http
 HTTP/1.1 400 Bad Request
 Date: Sat, 11 Mar 2023 04:53:33 GMT
 Content-Type: application/json
