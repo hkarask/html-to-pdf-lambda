@@ -21,7 +21,7 @@ curl -H 'Content-Type: application/json' -d '{"uri": "https://www.google.com", "
 
 Available parameters are:
 
-```json
+```js
 {
   "uri": "https://example.com", // URL or input S3 key
   "fileName": "converted.pdf" // Name of the converted file,
