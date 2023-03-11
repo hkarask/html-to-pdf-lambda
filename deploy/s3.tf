@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "function_html_input" {
-  bucket        = "${var.function_name}-input"
+  bucket        = "${var.s3_bucket_name}"
   force_destroy = true
 }
 

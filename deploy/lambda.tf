@@ -15,7 +15,11 @@ resource "aws_lambda_function" "function" {
   filename         = data.archive_file.function_zip.output_path
   source_code_hash = data.archive_file.function_zip.output_base64sha256
   role             = aws_iam_role.function_role.arn
-
+  environment {
+    variables = {
+      S3_BUCKET_NAME = "${var.s3_bucket_name}"
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_group" "function" {
@@ -60,8 +64,8 @@ resource "aws_iam_policy" "function_policy" {
         "Effect": "Allow",
         "Action": "s3:*",
         "Resource": [
-            "arn:aws:s3:::${var.function_name}-input",
-            "arn:aws:s3:::${var.function_name}-input/*"
+            "arn:aws:s3:::${var.s3_bucket_name}",
+            "arn:aws:s3:::${var.s3_bucket_name}/*"
         ]
     },
     {
@@ -96,4 +100,9 @@ output "function_url" {
 output "lambda_log_group" {
   description = "Name of the Lambda's log group"
   value = aws_cloudwatch_log_group.function.name
+}
+
+output "s3_bucket" {
+  description = "Name of the S3 bucket"
+  value = aws_s3_bucket.function_html_input.bucket
 }

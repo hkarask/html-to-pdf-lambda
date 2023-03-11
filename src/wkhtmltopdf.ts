@@ -3,7 +3,7 @@ import { existsSync } from "fs";
 import { spawn } from "child_process";
 import { WkOptions } from "./types";
 
-const wkhtmltopdf = (props: WkOptions) =>
+const wkhtmltopdf = (props: WkOptions, input: string | Stream) =>
   new Promise<Buffer>((resolve, reject) => {
     let wkhtmltopdfPath = "/opt/bin/wkhtmltopdf";
 
@@ -12,7 +12,7 @@ const wkhtmltopdf = (props: WkOptions) =>
     }
 
     if (!existsSync(wkhtmltopdfPath)) {
-      throw new Error(`Couldn't find ${wkhtmltopdfPath}`);
+      reject(new Error(`Couldn't find ${wkhtmltopdfPath}`));
     }
 
     const stderrMessages: string[] = [];
@@ -36,14 +36,14 @@ const wkhtmltopdf = (props: WkOptions) =>
 
     console.log(
       "Generating pdf from " +
-        (props.input instanceof Stream ? "a stream" : `an URI: '${props.input}'`)
+        (input instanceof Stream ? "a stream" : `an URI: '${input}'`)
     );
     console.debug("Wkhtmltopdf options", params);
 
     const args = [
       wkhtmltopdfPath,
       ...params,
-      props.input instanceof Stream ? "-" : props.input,
+      input instanceof Stream ? "-" : input,
       "-", // output, '-' for stream
     ].join(" ");
 
@@ -80,8 +80,8 @@ const wkhtmltopdf = (props: WkOptions) =>
       console.error(data.toString());
     });
 
-    if (props.input instanceof Stream) {
-      props.input.pipe(proc.stdin);
+    if (input instanceof Stream) {
+      input.pipe(proc.stdin);
     }
   });
 
