@@ -3,6 +3,7 @@ HTML to PDF converter hosted in AWS Lambda, using:
 - **Terraform** to provision the Lambda
 - **Typescript** to invoke the Wkhtmltopdf
 
+Blog post describing the problem & solution: [https://karask.com/generate-html-to-pdf-using-aws-lambda-and-wkhtmltopdf](https://karask.com/generate-html-to-pdf-using-aws-lambda-and-wkhtmltopdf)
 
 
 ## Deploy
