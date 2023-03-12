@@ -1,3 +1,5 @@
+![Wkhtmltopdf AWS Lambda Typescript](<https://s3-ap-southeast-2.amazonaws.com/karask.com/blog/lambda-wkhtmltopdf.jpg>)
+
 # HTML to PDF with AWS Lambda, Wkhtmltopdf, Terraform
 HTML to PDF converter hosted in AWS Lambda, using:
 - **Terraform** to provision the Lambda
